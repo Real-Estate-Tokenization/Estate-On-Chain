@@ -16,8 +16,7 @@ contract DeployAssetTokenizationManager is Script {
 
     function run() external {
         uint256 privateKey = vm.envUint("PRIVATE_KEY");
-        // address owner = 0xF1c8170181364DeD1C56c4361DED2eB47f2eef1b;
-        deploy(0x42fFD061E73331b2327a37AA306a0356859F9d1C, privateKey);
+        deploy(address(0), privateKey);  // feed your private key corresponding address here
         // deploy(owner, privateKey);
     }
 

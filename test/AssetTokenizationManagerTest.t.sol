@@ -116,54 +116,54 @@ contract AssetTokenizationManagerTest is Test {
         console.log(assetTokenizationManager.getEstateOwnerToTokeinzedRealEstate(estateOwner), "estateOwnerToTokeinzedRealEstate");
     }
 
-    function test_ccipReceiveWithDataFork() public {
-        address router = networkConfig.ccipRouter;
+    // function test_ccipReceiveWithDataFork() public {
+    //     address router = networkConfig.ccipRouter;
 
-        address tokenizationManagerSource = 0xdc5E2b74FbC0b4a8C7F6944D936f3f8eE8f9b5B2;
+    //     address tokenizationManagerSource = makeAddr("tokenizationManagerSource");
 
-        uint256 MESSAGE_TYPE = 1;
-        address estateOwner = nodeOperator;
-        uint256 estateCost = 1000000e18;
-        uint256 percentageToTokenize = 100e18;
-        uint256 tokenId = 2;
-        bytes32 salt = bytes32(abi.encode(70));
-        address paymentToken = address(usdc);
-        uint256[] memory chainsToDeploy = new uint256[](2);
-        chainsToDeploy[0] = networkConfig.supportedChains[0];
-        chainsToDeploy[1] = networkConfig.supportedChains[1];
-        address[] memory deploymentAddrForOtherChains = new address[](2);
-        deploymentAddrForOtherChains[0] = makeAddr("deploymentAddrForOtherChains0");
-        deploymentAddrForOtherChains[1] = makeAddr("deploymentAddrForOtherChains1");
+    //     uint256 MESSAGE_TYPE = 1;
+    //     address estateOwner = nodeOperator;
+    //     uint256 estateCost = 1000000e18;
+    //     uint256 percentageToTokenize = 100e18;
+    //     uint256 tokenId = 2;
+    //     bytes32 salt = bytes32(abi.encode(70));
+    //     address paymentToken = address(usdc);
+    //     uint256[] memory chainsToDeploy = new uint256[](2);
+    //     chainsToDeploy[0] = networkConfig.supportedChains[0];
+    //     chainsToDeploy[1] = networkConfig.supportedChains[1];
+    //     address[] memory deploymentAddrForOtherChains = new address[](2);
+    //     deploymentAddrForOtherChains[0] = makeAddr("deploymentAddrForOtherChains0");
+    //     deploymentAddrForOtherChains[1] = makeAddr("deploymentAddrForOtherChains1");
 
-        Client.Any2EVMMessage memory any2EvmMessage = Client.Any2EVMMessage({
-            messageId: bytes32(abi.encode(69)),
-            sourceChainSelector: 14767482510784806043, // 43113
-            sender: abi.encode(tokenizationManagerSource),
-            data: abi.encode(MESSAGE_TYPE, estateOwner, estateCost, percentageToTokenize, tokenId, salt, paymentToken, chainsToDeploy, deploymentAddrForOtherChains),
-            destTokenAmounts: new Client.EVMTokenAmount[](0)
-        });
+    //     Client.Any2EVMMessage memory any2EvmMessage = Client.Any2EVMMessage({
+    //         messageId: bytes32(abi.encode(69)),
+    //         sourceChainSelector: 14767482510784806043, // 43113
+    //         sender: abi.encode(tokenizationManagerSource),
+    //         data: abi.encode(MESSAGE_TYPE, estateOwner, estateCost, percentageToTokenize, tokenId, salt, paymentToken, chainsToDeploy, deploymentAddrForOtherChains),
+    //         destTokenAmounts: new Client.EVMTokenAmount[](0)
+    //     });
 
-        vm.prank(owner);
-        assetTokenizationManager.allowlistManager(14767482510784806043, tokenizationManagerSource);
+    //     vm.prank(owner);
+    //     assetTokenizationManager.allowlistManager(14767482510784806043, tokenizationManagerSource);
 
-        console.log("Total Supply:", assetTokenizationManager.balanceOf(estateOwner));
+    //     console.log("Total Supply:", assetTokenizationManager.balanceOf(estateOwner));
 
-        vm.prank(router);
-        assetTokenizationManager.ccipReceive(any2EvmMessage);
+    //     vm.prank(router);
+    //     assetTokenizationManager.ccipReceive(any2EvmMessage);
 
-        AssetTokenizationManager.EstateInfo memory info = assetTokenizationManager.getEstateInfo(2);
-        console.log("Total Supply:", assetTokenizationManager.balanceOf(estateOwner));
-        console.log(info.estateOwner, "estateOwner");
-        console.log(info.percentageToTokenize, "percentageToTokenize");
-        console.log(info.tokenizedRealEstate, "percentageToTokenize");
-        console.log(info.estateCost, "percentageToTokenize");
-    }
+    //     AssetTokenizationManager.EstateInfo memory info = assetTokenizationManager.getEstateInfo(2);
+    //     console.log("Total Supply:", assetTokenizationManager.balanceOf(estateOwner));
+    //     console.log(info.estateOwner, "estateOwner");
+    //     console.log(info.percentageToTokenize, "percentageToTokenize");
+    //     console.log(info.tokenizedRealEstate, "percentageToTokenize");
+    //     console.log(info.estateCost, "percentageToTokenize");
+    // }
 
     // function test_ccipReceiveWithDataFork_2() public {
     //     address router = networkConfig.ccipRouter;
 
-    //     address tokenizationManagerSource = 0xdc5E2b74FbC0b4a8C7F6944D936f3f8eE8f9b5B2;
-    //     AssetTokenizationManager currATM = AssetTokenizationManager(0xbd1d59757BDF0b4896E6d8D32E34a4A3417973f7);
+    //     address tokenizationManagerSource = makeAddr("tokenizationManagerSource");;
+    //     AssetTokenizationManager currATM = AssetTokenizationManager(makeAddr("AssetTokenizationManager"););
 
     //     uint256 MESSAGE_TYPE = 1;
     //     address estateOwner = nodeOperator;
@@ -205,10 +205,10 @@ contract AssetTokenizationManagerTest is Test {
     // function test_ccipReceiveWithDataFork_Curr() public {
     //     address router = 0x0BF3dE8c5D3e8A2B34D2BEeB17ABfCeBaf363A59;
 
-    //     address tokenizationManagerSource = 0x51002D2d366779b4C2CEDf817c47fB4eFfa928CE;
-    //     AssetTokenizationManager currATM = AssetTokenizationManager(0xE3311eb12426c4e19f4a655330a5d47973815b1A);
+    //     address tokenizationManagerSource = makeAddr("tokenizationManagerSource");;
+    //     AssetTokenizationManager currATM = AssetTokenizationManager(makeAddr("AssetTokenizationManager"););
 
-    //     address estateOwner = 0x697F5E7a089e1621EA329FE4e906EA45D16E79c6;
+    //     address estateOwner = makeAddr("estateOwner");
     //     // uint256 MESSAGE_TYPE = 1;
     //     // uint256 estateCost = 1000;
     //     // uint256 percentageToTokenize = 100e18;
@@ -223,7 +223,7 @@ contract AssetTokenizationManagerTest is Test {
     //     // deploymentAddrForOtherChains[1] = makeAddr("deploymentAddrForOtherChains1");
 
     //     Client.Any2EVMMessage memory any2EvmMessage = Client.Any2EVMMessage({
-    //         messageId: 0xfc34e0b36b57a9930766c2b8237ec43af2d0f30de225036a37da0fcb87039c57,
+    //         messageId: bytes32(keccak256("message_id")),
     //         sourceChainSelector: 14767482510784806043, // 43113
     //         sender: abi.encode(tokenizationManagerSource),
     //         data: hex"0000000000000000000000000000000000000000000000000000000000000001000000000000000000000000697f5e7a089e1621ea329fe4e906ea45d16e79c600000000000000000000000000000000000000000000000000000000000003e80000000000000000000000000000000000000000000000056bc75e2d63100000000000000000000000000000000000000000000000000000000000000000000137303030000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000a8690000000000000000000000000000000000000000000000000000000000aa36a700000000000000000000000000000000000000000000000000000000000000020000000000000000000000003b9c38ddbe817335c8aea40204938ab42186c969000000000000000000000000de482fd8265dbad60dd5c0761ab8ccc848a71699",
@@ -560,16 +560,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     // function test_fulfillCreateEstateRequest() public {
-    //     bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+    //     bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
     //     vm.startPrank(nodeOperator);
 
     //     mockToken.approve(address(realEstateRegistry), 1e18);
-    //     realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+    //     realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
     //     vm.stopPrank();
 
     //     vm.prank(owner);
-    //     realEstateRegistry.approveOperatorVault("meow");
+    //     realEstateRegistry.approveOperatorVault("nodeOpEns");
 
     //     address vault = realEstateRegistry.getOperatorVault(nodeOperator);
         

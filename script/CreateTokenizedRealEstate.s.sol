@@ -10,12 +10,11 @@ import {EstateVerification} from "../src/Computation/EstateVerification.sol";
 contract CreateTokenizedRealEstate is Script {
     function run() external {
         uint256 ownerKey = vm.envUint("PRIVATE_KEY");
-        address asset = 0x402A7859717f8fd0b1b8F806653dA7225E9e45CC;
+        address asset = address(0);  // feed your asset address here
         vm.startBroadcast(ownerKey);
         
-        address usdc = address(0xCd183631ebBcbd2109DC4a0E5D4D53f7fB3CE65e);
-        // address owner = 0x697F5E7a089e1621EA329FE4e906EA45D16E79c6;
-        address owner = 0x42fFD061E73331b2327a37AA306a0356859F9d1C;
+        address usdc = address(0);   // feed your USDC address here
+        address owner = address(0);  // feed admin address here
         
         USDC(usdc).mint(owner, 1000000e18);
         USDC(usdc).approve(asset, type(uint256).max);
@@ -36,7 +35,7 @@ contract CreateTokenizedRealEstate is Script {
         uint256 percentageToTokenize = 100e18;
         bool isApproved = true;
         bytes memory _saltBytes = bytes("6969");
-        address _verifyingOperator = 0x42fFD061E73331b2327a37AA306a0356859F9d1C;
+        address _verifyingOperator = address(0);    // feed your verifying operator address here
 
         bytes memory response = abi.encode(estateCost, percentageToTokenize, isApproved, _saltBytes, _verifyingOperator);
 

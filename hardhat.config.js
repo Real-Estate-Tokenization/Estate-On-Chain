@@ -11,7 +11,7 @@ module.exports = {
         runs: 400
       },
       viaIR: true,
-      evmVersion: "cancun",
+      evmVersion: "shanghai",
     }
   },
 

@@ -14,7 +14,6 @@ import { Base64 } from "@openzeppelin/contracts/utils/Base64.sol";
 import { Strings } from "@openzeppelin/contracts/utils/Strings.sol";
 import { AggregatorV3Interface } from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import { CcipRequestTypes } from "./CcipRequestTypes.sol";
-// import { console } from "forge-std/Test.sol";
 
 interface IERC20Decimals {
     function decimals() external view returns (uint8);
@@ -183,8 +182,6 @@ contract AssetTokenizationManager is ERC721, EstateAcrossChain, CcipRequestTypes
         assembly {
             ccipRequestType := mload(add(_data, 0x20))
         }
-
-        // console.log("ME HU BHAI:", ccipRequestType);
 
         if (ccipRequestType == CCIP_DEPLOY_TOKENIZED_REAL_ESTATE) {
             _handleDeployTokenizedRealEstate(_data);

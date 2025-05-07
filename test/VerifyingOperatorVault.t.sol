@@ -12,6 +12,7 @@ import {ERC1967ProxyAutoUp} from "../src/ERC1967ProxyAutoUp.sol";
 import {RealEstateRegistry} from "../src/RealEstateRegistry.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {MockERC20} from "./mocks/MockERC20Token.sol";
+import {USDC} from "./mocks/MockUSDCToken.sol";
 import {MockV3Aggregator} from "@chainlink/contracts/src/v0.8/tests/MockV3Aggregator.sol";
 
 contract AssetTokenizationManagerTest is Test {
@@ -70,18 +71,40 @@ contract AssetTokenizationManagerTest is Test {
         );
     }
 
+    function test_fork_receivedRewards() public {        
+        VerifyingOperatorVault vovF = VerifyingOperatorVault(makeAddr("VerifyingOperatorVault"));
+
+        USDC usdc = USDC(makeAddr("usdc"));
+        vm.startPrank(admin);
+        usdc.mint(admin, 100e18);
+        usdc.approve(address(vovF), 100e18);
+        vovF.stakeCollateral(100e18);
+        vm.stopPrank();
+
+        vm.prank(makeAddr("admin"));
+        RealEstateRegistry(makeAddr("realEstateRegistry")).updateVOVImplementation(makeAddr("newVovImplementation"));
+
+        vm.prank(makeAddr("assetTokenizationManager"));
+        vovF.addNewTokenizedRealEstate(makeAddr("newTre"));
+
+        console.log(usdc.balanceOf(address(vovF)));
+        console.log(usdc.balanceOf(makeAddr("newTre")));
+        vm.prank(makeAddr("newTre"));
+        vovF.receiveRewards(address(usdc), 205e20);
+    }
+
     function test_DepositCollateralAndRegisterVault() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
 
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
         bool isApproved = realEstateRegistry.getOperatorInfo(nodeOperator).isApproved;
@@ -92,17 +115,17 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_autoUpgradingChangesImplementation() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
 
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address newVovImplementation = address(new VerifyingOperatorVault());
 
@@ -139,17 +162,17 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_forceAutoUpgrade() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
 
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, false);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, false);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         VerifyingOperatorVault vault = VerifyingOperatorVault(realEstateRegistry.getOperatorVault(nodeOperator));
         assertEq(vault.isAutoUpdateEnabled(), false);
@@ -162,7 +185,7 @@ contract AssetTokenizationManagerTest is Test {
         assertEq(ERC1967ProxyAutoUp(payable(address(vault))).getImplementation(), vovAddr);
 
         vm.prank(admin);
-        realEstateRegistry.forceUpdateOperatorVault("meow");
+        realEstateRegistry.forceUpdateOperatorVault("nodeOpEns");
 
         assertEq(ERC1967ProxyAutoUp(payable(address(vault))).getImplementation(), newVovImplementation);
     }
@@ -178,16 +201,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_setMaxSlippageMoreThanSlippage() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -199,16 +222,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     // function test_setMaxSlippageLessOrEqualThanSlippage() public {
-    //     bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+    //     bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
     //     vm.startPrank(nodeOperator);
 
     //     mockToken.approve(address(realEstateRegistry), 1e18);
-    //     realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+    //     realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
     //     vm.stopPrank();
 
     //     vm.prank(admin);
-    //     realEstateRegistry.approveOperatorVault("meow");
+    //     realEstateRegistry.approveOperatorVault("nodeOpEns");
 
     //     address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -220,16 +243,16 @@ contract AssetTokenizationManagerTest is Test {
     // }
 
     function test_stakeCollateral() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -240,16 +263,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_slashVault() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -260,16 +283,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_getRealEstateRegistry() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -277,16 +300,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_getIsSlashed() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -294,16 +317,16 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function test_isAutoUpdateEnabled() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         address vault = realEstateRegistry.getOperatorVault(nodeOperator);
 
@@ -373,24 +396,24 @@ contract AssetTokenizationManagerTest is Test {
     }
 
     function testDepositCollateralAndRegisterVault() public {
-        bytes memory _signature = prepareAndSignSignature(nodeOperator, "meow");
+        bytes memory _signature = prepareAndSignSignature(nodeOperator, "nodeOpEns");
 
         vm.startPrank(nodeOperator);
 
         mockToken.approve(address(realEstateRegistry), 1e18);
-        realEstateRegistry.depositCollateralAndRegisterVault("meow", address(mockToken), _signature, true);
+        realEstateRegistry.depositCollateralAndRegisterVault("nodeOpEns", address(mockToken), _signature, true);
 
         vm.stopPrank();
 
         vm.prank(admin);
-        realEstateRegistry.approveOperatorVault("meow");
+        realEstateRegistry.approveOperatorVault("nodeOpEns");
 
         // address vault = realEstateRegistry.getOperatorVault(nodeOperator);
         bool isApproved = realEstateRegistry.getOperatorInfo(nodeOperator).isApproved;
         require(isApproved, "Vault not registered");
 
         vm.startPrank(slasher);
-        realEstateRegistry.slashOperatorVault("meow");
+        realEstateRegistry.slashOperatorVault("nodeOpEns");
         vm.stopPrank();
 
         isApproved = realEstateRegistry.getOperatorInfo(nodeOperator).isApproved;
